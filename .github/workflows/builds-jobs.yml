@@ -18,6 +18,7 @@ on:
     - cron: '0 4 2 9 *'  # Memicu Job B
     - cron: '0 14 2 9 *' # Memicu Job C
     - cron: '0 0 3 9 *'  # Memicu Job D
+    - cron: '0 0 8 9 *'  # Memicu Job E
   workflow_dispatch:
 
 permissions:
@@ -43,7 +44,7 @@ jobs:
           fi
           
           gh workflow run Builds.yml \
-            -f release_branch="openwrt:25.12.5" \
+            -f release_branch="immortalwrt:25.12.1" \
             -f rootfs_size="1024" \
             -f target="all-devices-ophub" \
             -f tunnel="all-tunnel-v2" \
@@ -67,7 +68,7 @@ jobs:
           fi
           
           gh workflow run Builds.yml \
-            -f release_branch="openwrt:25.12.5" \
+            -f release_branch="immortalwrt:25.12.1" \
             -f rootfs_size="1024" \
             -f target="all-devices-ulo" \
             -f tunnel="all-tunnel-v2" \
@@ -91,7 +92,7 @@ jobs:
           fi
           
           gh workflow run Builds.yml \
-            -f release_branch="openwrt:25.12.5" \
+            -f release_branch="immortalwrt:25.12.1" \
             -f rootfs_size="1024" \
             -f target="all-devices-official" \
             -f tunnel="all-tunnel-v2" \
@@ -115,8 +116,32 @@ jobs:
           fi
           
           gh workflow run Builds.yml \
-            -f release_branch="openwrt:25.12.5" \
+            -f release_branch="immortalwrt:25.12.1" \
             -f rootfs_size="1024" \
             -f target="opt-devices-official" \
+            -f tunnel="all-tunnel-v2" \
+            -f clean="true"
+            
+  job-e:
+    name: Job E (widora-devices)
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 0 8 9 *'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+
+      - name: Trigger Builds.yml - WIDORA DEVICES
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ "$(date +'%Y')" != "2026" ] && [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
+            echo "Bukan tahun 2026. Membatalkan eksekusi otomatis."
+            exit 0
+          fi
+          
+          gh workflow run Builds.yml \
+            -f release_branch="immortalwrt:25.12.1" \
+            -f rootfs_size="1024" \
+            -f target="widora-devices" \
             -f tunnel="all-tunnel-v2" \
             -f clean="true"
